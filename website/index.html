@@ -1,0 +1,76 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>simpleheat demo</title>
+    <style>
+        body { height: 100%; width: 100%;
+               padding: 0; margin: 0;}
+        canvas { padding: 0; margin: 0;
+                 position: absolute; left: 0; top: 0;}
+        img { max-width: 100%; max-height: 100%;
+              position: absolute; left: 0; top: 0;}
+    </style>
+</head>
+<body>
+    <img id="floor" src="SC16Floorplan.png">
+    <canvas id="canvas"></canvas>
+</div>
+<script src="jquery-3.1.1.min.js"></script>
+<script src="simpleheat.js"></script>
+<script>
+
+window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
+                               window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+
+function get(id) {
+    return document.getElementById(id);
+}
+
+canvas = get('canvas');
+canvas.height = get('floor').height
+canvas.width = get('floor').width
+// TODO resize with browser
+
+var heat = simpleheat('canvas'), frame;
+heat.max(18);
+heat.radius(25, 15); // radius, blur
+heat.gradient(heat.defaultGradient);
+
+var ap_list, ap_loc;
+
+function fill_data() {
+    for(var i=0; i < ap_list.length; i++) {
+        if(ap_list[i]["mac"] in ap_loc) {
+            loc = ap_loc[ap_list[i]["mac"]];
+            heat.add([loc[0], loc[1], ap_list[i]["clients"]]);
+        } else {
+            console.log('Unknown location for '+ap_list[i])
+        }
+    }
+}
+
+$.ajax({url:"ap_list.json", contentType:"jsonp", success:function( data ) { 
+    ap_list = data;
+    if(ap_loc) {
+        fill_data();
+        draw();
+    }
+}});
+$.ajax({url:"ap_loc.json", contentType:"jsonp", success:function( data ) {
+    ap_loc = data;
+    if(ap_list) {
+        fill_data();
+        draw();
+    }
+}});
+
+function draw() {
+    console.time('draw');
+    heat.draw();
+    console.timeEnd('draw');
+    frame = null;
+}
+</script>
+</body>
+</html>

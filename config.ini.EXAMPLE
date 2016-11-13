@@ -1,0 +1,4 @@
+[PRIME]
+API_HOST = 140.23.23.23
+API_USER = foo
+API_PASSWORD = bar
