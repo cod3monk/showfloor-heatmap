@@ -13,7 +13,7 @@
     </style>
 </head>
 <body>
-    <img id="floor" src="floorplan.svg">
+    <img id="floor" src="floorplan.png">
     <canvas id="canvas"></canvas>
 </div>
 <script src="jquery-3.1.1.min.js"></script>
@@ -30,9 +30,10 @@ function get(id) {
 canvas = get('canvas');
 canvas.height = get('floor').height
 canvas.width = get('floor').width
+
 // TODO resize with browser
 
-var heat = simpleheat('canvas'), frame;
+var heat = simpleheat('canvas');
 heat.max(18);
 heat.radius(30, 60); // radius, blur
 heat.gradient(heat.defaultGradient);
@@ -50,27 +51,28 @@ function fill_data() {
     }
 }
 
-$.ajax({url:"ap_list.json", contentType:"jsonp", success:function( data ) { 
+$.getJSON("ap_list.json", function( data ) { 
     ap_list = data;
     if(ap_loc) {
         fill_data();
         draw();
     }
-}});
-$.ajax({url:"ap_loc.json", contentType:"jsonp", success:function( data ) {
+});
+$.getJSON("ap_loc.json", function( data ) {
     ap_loc = data;
     if(ap_list) {
         fill_data();
         draw();
     }
-}});
+});
 
 function draw() {
     console.time('draw');
     heat.draw();
     console.timeEnd('draw');
-    frame = null;
 }
+
+setInterval(function(){ draw(); }, 300);
 
 </script>
 </body>
