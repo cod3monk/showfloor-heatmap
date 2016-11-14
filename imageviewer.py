@@ -57,13 +57,13 @@ class ImageViewer(QtGui.QMainWindow):
         fileName = QtGui.QFileDialog.getOpenFileName(self, "Open File",
                 QtCore.QDir.currentPath())
         if fileName:
-            image = QtGui.QImage(fileName)
-            if image.isNull():
+            self.image = QtGui.QImage(fileName)
+            if self.image.isNull():
                 QtGui.QMessageBox.information(self, "Image Viewer",
                         "Cannot load %s." % fileName)
                 return
 
-            self.imageLabel.setPixmap(QtGui.QPixmap.fromImage(image))
+            self.imageLabel.setPixmap(QtGui.QPixmap.fromImage(self.image))
             self.scaleFactor = 1.0
 
             self.fitToWindowAct.setEnabled(True)
@@ -103,10 +103,21 @@ class ImageViewer(QtGui.QMainWindow):
     def next(self):
         self.ap_cur += 1
         if len(self.ap_list) > self.ap_cur:
-            print("Please click for:")
-            print(self.ap_list[self.ap_cur])
+            print()
+            sys.stdout.write("Please click for " + self.ap_list[self.ap_cur]['name']+": ")
+            sys.stdout.flush()
         else:
             print('out of aps, please save data!')
+    
+    def back(self):
+        self.ap_cur = max(self.ap_cur - 2, -1)
+        print()
+        self.next()
+    
+    def clear_loc(self):
+        if self.ap_cur < len(self.ap_list):
+            del self.ap_list[self.ap_cur]['loc']
+        self.next()
 
     def zoomIn(self):
         self.scaleImage(1.25)
@@ -127,9 +138,9 @@ class ImageViewer(QtGui.QMainWindow):
         self.updateActions()
     
     def onClick(self, event):
-        loc = (int(event.pos().x()/self.scaleFactor),
-               int(event.pos().y()/self.scaleFactor))
-        print("clicked on", loc)
+        loc = (event.pos().x()/self.scaleFactor/self.image.width(),
+               event.pos().y()/self.scaleFactor/self.image.height())
+        print(loc)
         if self.ap_cur < len(self.ap_list):
             self.ap_list[self.ap_cur]['loc'] = list(loc)
         self.next()
@@ -163,15 +174,16 @@ class ImageViewer(QtGui.QMainWindow):
         
         self.nextAct = QtGui.QAction("&Next AP / Skip", self, shortcut="Ctrl+N",
                 triggered=self.next)
+        self.backAct = QtGui.QAction("Go &Back one AP", self, shortcut="Ctrl+B",
+                triggered=self.back)
+        self.clearLocAct = QtGui.QAction("&Clear current AP location", self, shortcut="Ctrl+C",
+                triggered=self.clear_loc)
 
         self.zoomInAct = QtGui.QAction("Zoom &In (25%)", self,
                 shortcut="Ctrl++", enabled=False, triggered=self.zoomIn)
 
         self.zoomOutAct = QtGui.QAction("Zoom &Out (25%)", self,
                 shortcut="Ctrl+-", enabled=False, triggered=self.zoomOut)
-
-        self.normalSizeAct = QtGui.QAction("&Normal Size", self,
-                shortcut="Ctrl+N", enabled=False, triggered=self.normalSize)
 
         self.fitToWindowAct = QtGui.QAction("&Fit to Window", self,
                 enabled=False, checkable=True, shortcut="Ctrl+F",
@@ -193,12 +205,13 @@ class ImageViewer(QtGui.QMainWindow):
         self.viewMenu = QtGui.QMenu("&View", self)
         self.viewMenu.addAction(self.zoomInAct)
         self.viewMenu.addAction(self.zoomOutAct)
-        self.viewMenu.addAction(self.normalSizeAct)
         self.viewMenu.addSeparator()
         self.viewMenu.addAction(self.fitToWindowAct)
         
         self.apMenu = QtGui.QMenu("&APs", self)
         self.viewMenu.addAction(self.nextAct)
+        self.viewMenu.addAction(self.backAct)
+        self.viewMenu.addAction(self.clearLocAct)
 
         self.helpMenu = QtGui.QMenu("&Help", self)
         self.helpMenu.addAction(self.aboutAct)
@@ -211,7 +224,6 @@ class ImageViewer(QtGui.QMainWindow):
     def updateActions(self):
         self.zoomInAct.setEnabled(not self.fitToWindowAct.isChecked())
         self.zoomOutAct.setEnabled(not self.fitToWindowAct.isChecked())
-        self.normalSizeAct.setEnabled(not self.fitToWindowAct.isChecked())
 
     def scaleImage(self, factor):
         self.scaleFactor *= factor

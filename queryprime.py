@@ -30,13 +30,16 @@ def main():
     ap_data = api_request('/webacs/api/v2/data/AccessPoints.json?.full=true&.maxResults=1000',
                           config)['json_response']['queryResponse']['entity']
     
-    print(json.dumps([{"mac": ap['accessPointsDTO']['macAddress'],
-                        "name": ap['accessPointsDTO']['name'],
-                        "location": ap['accessPointsDTO']['location'],
-                        "clients": ap['accessPointsDTO']['clientCount'],
-                        "clients2.4": ap['accessPointsDTO']['clientCount_2_4GHz'],
-                        "clients5": ap['accessPointsDTO']['clientCount_5GHz'],
-                       } for ap in ap_data]))
+    dump_data = [{"mac": ap['accessPointsDTO']['macAddress'],
+                  "name": ap['accessPointsDTO']['name'],
+                  "location": ap['accessPointsDTO']['location'],
+                  "clients": ap['accessPointsDTO']['clientCount'],
+                  "clients2.4": ap['accessPointsDTO']['clientCount_2_4GHz'],
+                  "clients5": ap['accessPointsDTO']['clientCount_5GHz'],
+                 } for ap in ap_data]
+    dump_data.sort(key=lambda d: d['name'])
+    
+    print(json.dumps(dump_data))
         
 
 if __name__ == '__main__':

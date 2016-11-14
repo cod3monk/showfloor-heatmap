@@ -13,7 +13,7 @@
     </style>
 </head>
 <body>
-    <img id="floor" src="SC16Floorplan.png">
+    <img id="floor" src="SC16Floorplan.svg">
     <canvas id="canvas"></canvas>
 </div>
 <script src="jquery-3.1.1.min.js"></script>
@@ -34,7 +34,7 @@ canvas.width = get('floor').width
 
 var heat = simpleheat('canvas'), frame;
 heat.max(18);
-heat.radius(25, 15); // radius, blur
+heat.radius(30, 60); // radius, blur
 heat.gradient(heat.defaultGradient);
 
 var ap_list, ap_loc;
@@ -43,7 +43,8 @@ function fill_data() {
     for(var i=0; i < ap_list.length; i++) {
         if(ap_list[i]["mac"] in ap_loc) {
             loc = ap_loc[ap_list[i]["mac"]];
-            heat.add([loc[0], loc[1], ap_list[i]["clients"]]);
+            heat.add([loc[0]*get('floor').width, loc[1]*get('floor').height, ap_list[i]["clients"]]);
+            console.log(loc, ap_list[i]["clients"])
         } else {
             console.log('Unknown location for '+ap_list[i])
         }
