@@ -32,6 +32,9 @@ class ImageViewer(QtGui.QMainWindow):
     def __init__(self):
         super(ImageViewer, self).__init__()
 
+        self.ap_cur = None
+        self.ap_list = []
+
         self.printer = QtGui.QPrinter()
         self.scaleFactor = 0.0
 
@@ -141,9 +144,10 @@ class ImageViewer(QtGui.QMainWindow):
         loc = (event.pos().x()/self.scaleFactor/self.image.width(),
                event.pos().y()/self.scaleFactor/self.image.height())
         print(loc)
-        if self.ap_cur < len(self.ap_list):
-            self.ap_list[self.ap_cur]['loc'] = list(loc)
-        self.next()
+        if self.ap_cur is not None:
+            if self.ap_cur < len(self.ap_list):
+                self.ap_list[self.ap_cur]['loc'] = list(loc)
+            self.next()
 
     def about(self):
         QtGui.QMessageBox.about(self, "About Image Viewer",
