@@ -1,6 +1,9 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
-import configparser
+try:
+    import configparser
+except:
+    import ConfigParser as configparser
 from pprint import pprint
 import json
 
