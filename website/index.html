@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>simpleheat demo</title>
+    <title>(Almost) Real-time Wifi-Client Heatmap</title>
     <style>
         body { height: 100%; width: 100%;
                padding: 0; margin: 0;}
@@ -13,7 +13,7 @@
     </style>
 </head>
 <body>
-    <img id="floor" src="SC16Floorplan.svg">
+    <img id="floor" src="floorplan.svg">
     <canvas id="canvas"></canvas>
 </div>
 <script src="jquery-3.1.1.min.js"></script>
@@ -41,12 +41,11 @@ var ap_list, ap_loc;
 
 function fill_data() {
     for(var i=0; i < ap_list.length; i++) {
-        if(ap_list[i]["mac"] in ap_loc) {
-            loc = ap_loc[ap_list[i]["mac"]];
+        if(ap_list[i]["name"] in ap_loc) {
+            loc = ap_loc[ap_list[i]["name"]];
             heat.add([loc[0]*get('floor').width, loc[1]*get('floor').height, ap_list[i]["clients"]]);
-            console.log(loc, ap_list[i]["clients"])
         } else {
-            console.log('Unknown location for '+ap_list[i])
+            console.log('Unknown location for '+ap_list[i]["name"])
         }
     }
 }
@@ -72,6 +71,7 @@ function draw() {
     console.timeEnd('draw');
     frame = null;
 }
+
 </script>
 </body>
 </html>

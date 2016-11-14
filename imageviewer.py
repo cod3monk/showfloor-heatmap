@@ -91,7 +91,7 @@ class ImageViewer(QtGui.QMainWindow):
         fileName = QtGui.QFileDialog.getSaveFileName(self, "Save File",
                 QtCore.QDir.currentPath(), "JSON (*.json)")
         if fileName:
-            ap_loc_dict = {ap['mac']: ap['loc'] for ap in self.ap_list if 'loc' in ap}
+            ap_loc_dict = {ap['name']: ap['loc'] for ap in self.ap_list if 'loc' in ap}
             try:
                 json.dump(ap_loc_dict, open(fileName, 'w'))
             except Exception as e:
