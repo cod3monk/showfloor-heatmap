@@ -39,7 +39,7 @@ def main():
                   "clients": ap['accessPointsDTO']['clientCount'],
                   "clients2.4": ap['accessPointsDTO']['clientCount_2_4GHz'],
                   "clients5": ap['accessPointsDTO']['clientCount_5GHz'],
-                 } for ap in ap_data]
+                 } for ap in ap_data if 'location' in ap['accessPointsDTO']]
     dump_data.sort(key=lambda d: d['name'])
     
     print(json.dumps(dump_data))
