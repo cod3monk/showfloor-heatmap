@@ -107,7 +107,10 @@ class ImageViewer(QtGui.QMainWindow):
         self.ap_cur += 1
         if len(self.ap_list) > self.ap_cur:
             print()
-            sys.stdout.write("Please click for " + self.ap_list[self.ap_cur]['name']+": ")
+            sys.stdout.write("Please click for {} ({}): ".format(
+                self.ap_list[self.ap_cur]['name'],
+                self.ap_list[self.ap_cur]['location']
+            ))
             sys.stdout.flush()
         else:
             print('out of aps, please save data!')
