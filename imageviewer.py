@@ -74,7 +74,7 @@ class ImageViewer(QtGui.QMainWindow):
 
             if not self.fitToWindowAct.isChecked():
                 self.imageLabel.adjustSize()
-    
+
     def open_ap_list(self):
         fileName = QtGui.QFileDialog.getOpenFileName(self, "Open File",
                 QtCore.QDir.currentPath())
@@ -89,7 +89,7 @@ class ImageViewer(QtGui.QMainWindow):
                 return
             self.ap_cur = -1
             self.next()
-    
+
     def save_ap_list(self):
         fileName = QtGui.QFileDialog.getSaveFileName(self, "Save File",
                 QtCore.QDir.currentPath(), "JSON (*.json)")
@@ -102,7 +102,7 @@ class ImageViewer(QtGui.QMainWindow):
                 QtGui.QMessageBox.information(self, "Image Viewer",
                         "Cannot save AP List %s." % fileName)
                 return
-    
+
     def next(self):
         self.ap_cur += 1
         if len(self.ap_list) > self.ap_cur:
@@ -111,12 +111,32 @@ class ImageViewer(QtGui.QMainWindow):
             sys.stdout.flush()
         else:
             print('out of aps, please save data!')
-    
+
+    def find(self):
+        search_string, ok = QtGui.QInputDialog.getText(
+            self, "Search by AP name", "Search substring:")
+        if not ok:
+            return
+
+        print("Searching for {!r}... ".format(search_string), end='')
+        found_aps = [(i, ap) for i, ap in enumerate(self.ap_list)
+                     if search_string.lower() in ap['name'].lower()]
+        if len(found_aps) == 0:
+            print('Nothing found.')
+            return
+        elif len(found_aps) > 1:
+            print("{} APs matched ({})".format(
+                len(found_aps), ', '.join([ap['name'] for i, ap in found_aps])))
+            return
+        else:
+            self.ap_cur = found_aps[0][0]-1
+            self.next()
+
     def back(self):
         self.ap_cur = max(self.ap_cur - 2, -1)
         print()
         self.next()
-    
+
     def clear_loc(self):
         if self.ap_cur < len(self.ap_list):
             del self.ap_list[self.ap_cur]['loc']
@@ -139,7 +159,7 @@ class ImageViewer(QtGui.QMainWindow):
             self.normalSize()
 
         self.updateActions()
-    
+
     def onClick(self, event):
         loc = (event.pos().x()/self.scaleFactor/self.image.width(),
                event.pos().y()/self.scaleFactor/self.image.height())
@@ -166,20 +186,22 @@ class ImageViewer(QtGui.QMainWindow):
     def createActions(self):
         self.openImageAct = QtGui.QAction("&Open Image...", self, shortcut="Ctrl+O",
                 triggered=self.open_image)
-        
+
         self.openAPListAct = QtGui.QAction("Open &AP List...", self, shortcut="Ctrl+L",
                 triggered=self.open_ap_list)
-        
+
         self.saveAPListAct = QtGui.QAction("&Save AP List...", self, shortcut="Ctrl+S",
                 triggered=self.save_ap_list)
 
         self.exitAct = QtGui.QAction("E&xit", self, shortcut="Ctrl+Q",
                 triggered=self.close)
-        
+
         self.nextAct = QtGui.QAction("&Next AP / Skip", self, shortcut="Ctrl+N",
                 triggered=self.next)
         self.backAct = QtGui.QAction("Go &Back one AP", self, shortcut="Ctrl+B",
                 triggered=self.back)
+        self.findAct = QtGui.QAction("&Find AP by substring", self, shortcut="Ctrl+F",
+                triggered=self.find)
         self.clearLocAct = QtGui.QAction("&Clear current AP location", self, shortcut="Ctrl+C",
                 triggered=self.clear_loc)
 
@@ -189,8 +211,8 @@ class ImageViewer(QtGui.QMainWindow):
         self.zoomOutAct = QtGui.QAction("Zoom &Out (25%)", self,
                 shortcut="Ctrl+-", enabled=False, triggered=self.zoomOut)
 
-        self.fitToWindowAct = QtGui.QAction("&Fit to Window", self,
-                enabled=False, checkable=True, shortcut="Ctrl+F",
+        self.fitToWindowAct = QtGui.QAction("Fi&t to Window", self,
+                enabled=False, checkable=True, shortcut="Ctrl+T",
                 triggered=self.fitToWindow)
 
         self.aboutAct = QtGui.QAction("&About", self, triggered=self.about)
@@ -211,8 +233,9 @@ class ImageViewer(QtGui.QMainWindow):
         self.viewMenu.addAction(self.zoomOutAct)
         self.viewMenu.addSeparator()
         self.viewMenu.addAction(self.fitToWindowAct)
-        
+
         self.apMenu = QtGui.QMenu("&APs", self)
+        self.viewMenu.addAction(self.findAct)
         self.viewMenu.addAction(self.nextAct)
         self.viewMenu.addAction(self.backAct)
         self.viewMenu.addAction(self.clearLocAct)
