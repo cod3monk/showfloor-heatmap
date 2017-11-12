@@ -19,7 +19,6 @@ Reads data from a Cisco Prime and turns it into a heatmap. Needs manual input fo
 
 ## TODOs
 
-* Resizing the browser window
 * Automatic reload json
 * Support Multiple floors
 * Center map
