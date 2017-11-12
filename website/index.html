@@ -51,7 +51,13 @@ function fill_data() {
     }
 }
 
-$.getJSON("ap_list.json", function( data ) { 
+function draw() {
+    console.time('draw');
+    heat.draw();
+    console.timeEnd('draw');
+}
+
+$.getJSON("ap_list.json", function( data ) {
     ap_list = data;
     if(ap_loc) {
         fill_data();
@@ -66,13 +72,7 @@ $.getJSON("ap_loc.json", function( data ) {
     }
 });
 
-function draw() {
-    console.time('draw');
-    heat.draw();
-    console.timeEnd('draw');
-}
-
-setInterval(function(){ draw(); }, 300);
+//setInterval(function(){ draw(); }, 300);
 
 </script>
 </body>
