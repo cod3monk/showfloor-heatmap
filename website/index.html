@@ -7,7 +7,8 @@
         body { height: 100%; width: 100%;
                padding: 0; margin: 0;}
         canvas { padding: 0; margin: 0;
-                 position: absolute; left: 0; top: 0;}
+                 position: absolute; left: 0; top: 0;
+                 z-index: -1;}
         img { max-width: 100%; max-height: 100%;
               position: absolute; left: 0; top: 0;}
     </style>
@@ -34,27 +35,32 @@ canvas.width = get('floor').width
 // TODO resize with browser
 
 var heat = simpleheat('canvas');
-heat.max(18);
-heat.radius(30, 60); // radius, blur
 heat.gradient(heat.defaultGradient);
 
 var ap_list, ap_loc;
-
-function fill_data() {
-    for(var i=0; i < ap_list.length; i++) {
-        if(ap_list[i]["name"] in ap_loc) {
-            loc = ap_loc[ap_list[i]["name"]];
-            heat.add([loc[0]*get('floor').width, loc[1]*get('floor').height, ap_list[i]["clients"]]);
-        } else {
-            console.log('Unknown location for '+ap_list[i]["name"])
-        }
-    }
-}
 
 function draw() {
     console.time('draw');
     heat.draw();
     console.timeEnd('draw');
+}
+
+function fill_data() {
+    heat.clear();
+    max = 0;
+    for(var i=0; i < ap_list.length; i++) {
+        if(ap_list[i]["name"] in ap_loc) {
+            loc = ap_loc[ap_list[i]["name"]];
+            heat.add([loc[0]*get('floor').width, loc[1]*get('floor').height, ap_list[i]["clients"]]);
+            max = Math.max(max, ap_list[i]["clients"]);
+        } else {
+            console.log('Unknown location for '+ap_list[i]["name"]);
+        }
+    }
+    console.log('max:', max);
+    heat.max(max);
+    heat.radius(get('floor').width/32, get('floor').width/16); // radius, blur
+    draw();
 }
 
 $.getJSON("ap_list.json", function( data ) {
@@ -72,7 +78,13 @@ $.getJSON("ap_loc.json", function( data ) {
     }
 });
 
-//setInterval(function(){ draw(); }, 300);
+window.onresize = function() {
+   canvas.height = get('floor').height
+   canvas.width = get('floor').width
+   heat.resize();
+   fill_data();
+   draw();
+};
 
 </script>
 </body>
