@@ -16,6 +16,7 @@
 <body>
     <img id="floor" src="floorplan.png">
     <canvas id="canvas"></canvas>
+    <canvas id="labels"></canvas>
 </div>
 <script src="jquery-3.1.1.min.js"></script>
 <script src="simpleheat.js"></script>
@@ -31,6 +32,11 @@ function get(id) {
 canvas = get('canvas');
 canvas.height = get('floor').height
 canvas.width = get('floor').width
+lables = get('labels');
+labels.height = get('floor').height
+labels.width = get('floor').width
+var urlParams = new URLSearchParams(window.location.search);
+
 
 // TODO resize with browser
 
@@ -61,6 +67,38 @@ function fill_data() {
     heat.max(max);
     heat.radius(get('floor').width/32, get('floor').width/16); // radius, blur
     draw();
+
+    if(urlParams.has('show_aps')) {
+        console.log("now showing aps");
+        ctxt = labels.getContext("2d");
+        ctxt.clearRect(0, 0, labels.width, lables.height);
+        ctxt.textAlign = "left";
+        for(var i=0; i < ap_list.length; i++) {
+            if(ap_list[i]["name"] in ap_loc) {
+                loc = ap_loc[ap_list[i]["name"]];
+                x = loc[0]*get('floor').width,
+                y = loc[1]*get('floor').height
+                ctxt.font = "10px Arial";
+                ctxt.fillStyle = "red";
+                ctxt.beginPath();
+                ctxt.arc(x, y, 3, 0, 2*Math.PI);
+                ctxt.closePath();
+                ctxt.fill();
+                ctxt.ellipse(x, y, 10, 10, 0, 0, 0);
+                ctxt.fillStyle = "black";
+                ctxt.save();
+                ctxt.translate(x, y);
+                ctxt.rotate(-Math.PI/4);
+                var re = RegExp(".*-([A-F0-9]{4})-.*").exec(ap_list[i]["name"])
+                if(re != null) {
+                    ctxt.fillText(re[1], 0, 0);
+                } else {
+                    ctxt.fillText(ap_list[i]["name"], 0, 0);
+                }
+                ctxt.restore();
+            }
+        }
+    }
 }
 
 $.getJSON("ap_list.json", function( data ) {
