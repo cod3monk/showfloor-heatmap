@@ -11,12 +11,16 @@
                  z-index: -1;}
         img { max-width: 100%; max-height: 100%;
               position: absolute; left: 0; top: 0;}
+        #status { position: absolute; right: 2%; bottom: 3%; text-align: left;
+                  color: darkorange;}
     </style>
 </head>
 <body>
+<div>
     <img id="floor">
     <canvas id="canvas"></canvas>
     <canvas id="labels"></canvas>
+    <div id="status"></div>
 </div>
 <script src="jquery-3.1.1.min.js"></script>
 <script src="simpleheat.js"></script>
@@ -76,7 +80,7 @@ function fill_data() {
             if(ap_list[i]['ip'] in ap_traffic) {
                 heat.add([loc[0]*get('floor').width, loc[1]*get('floor').height, ap_traffic[ap_list[i]['ip']]]);
                 max = Math.max(max, ap_traffic[ap_list[i]['ip']]);
-                //sum += ap_traffic[ap_list[i]['ip']];
+                sum += ap_traffic[ap_list[i]['ip']];
             } else {
                 //console.log('No traffic for '+ap_list[i]["ip"]);
             }
@@ -87,6 +91,9 @@ function fill_data() {
     //console.log('max:', max, ' sum:', sum*8/1e6);
     //console.log(heat)
     heat.max(max);
+    get("status").innerHTML =
+        "Current maximum traffic per AP: "+(max*8.0/1e6).toFixed(0)+" Mbit/s"+
+        "<br>Current total traffic of all APs: "+(sum*8.0/1e6).toFixed(0)+" Mbit/s";
     heat.radius(get('floor').width/32, get('floor').width/16); // radius, blur
 
     if(urlParams.has('show_aps')) {
