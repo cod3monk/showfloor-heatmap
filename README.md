@@ -1,7 +1,10 @@
 # showfloor-heatmap
-SC16 showfloor heatmap
+SC17 showfloor heatmap
 
-Reads data from a Cisco Prime and turns it into a heatmap. Needs manual input for AP locations
+Reads data from a Cisco Prime and turns it into a heatmap. Needs manual input for AP locations. Also support live bandwidth heatmaps, which update in realtime with [sFlow-RT](http://sflow-rt.com/).
+
+## Example Images
+
 
 ## How to run
 
@@ -16,9 +19,34 @@ Reads data from a Cisco Prime and turns it into a heatmap. Needs manual input fo
    4. Skip APs with CMD+n and go back to last AP with CMD+b
    5. Save AP Locations to `website/ap_loc.json`
 6. Point browser to `website/index.html` (e.g., with `./runserver.py` in `website`)
+7. Add `?show_aps` to URL to also show AP placement on showfloor.
+
+## Live sFlow-RT version
+
+1. Create an sFlow-RT app, as described [here](http://sflow-rt.com/writing_applications.php) with the following script:
+```javascript
+controller = "140.221.244.2"; // needs to be changed
+
+setFlow('sc17-wifi',
+{
+  keys: "if:ipsource:"+controller+":ipdestination:ipsource",
+  value:'bytes',
+  filter:"(ipsource="+controller+" & udpsourceport=5247) | (ipdestination="+controller+" & udpdestinationport=5247)",
+  t: 10
+});
+```
+2. Update the sFlow-RT URL in the `index_traffic.html` file, to point to your app.
+3. Open up `website/index_traffic.html`, which will update every 200ms.
+4. To change interval use `?interval=1000` (for 1 second updates).
 
 ## TODOs
 
-* Automatic reload json
-* Support Multiple floors
-* Center map
+* Center map (currently it is aligned left)
+
+## Authors
+
+* Julian Hammer
+* Neil McKee (sFlow-RT integration)
+
+## Licencse
+GNU Affero General Public License Version 3.0
