@@ -134,7 +134,11 @@ $.getJSON("https://inmon.sc17.org/sflow-rt/activeflows/ALL/sc17-wifi/json?maxFlo
 })
 };
 
-setInterval(load_traffic, 200);
+if(urlParams.has('interval')) {
+    setInterval(load_traffic, urlParams.get('interval'));
+} else {
+    setInterval(load_traffic, 200);
+}
 
 window.onresize = function() {
    canvas.height = get('floor').height
