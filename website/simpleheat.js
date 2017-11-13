@@ -79,17 +79,17 @@ simpleheat.prototype = {
         var canvas = this._createCanvas(),
             ctx = canvas.getContext('2d'),
             gradient = ctx.createLinearGradient(0, 0, 0, 256);
-        
+
         canvas.width = 1;
         canvas.height = 256;
-        
+
         for (var i in grad) {
             gradient.addColorStop(+i, grad[i]);
         }
-        
+
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, 1, 256);
-        
+
         this._grad = ctx.getImageData(0, 0, 1, 256).data;
 
         return this;
@@ -106,7 +106,7 @@ simpleheat.prototype = {
         // draw a grayscale heatmap by putting a blurred circle at each data point
         for (var i = 0, len = this._data.length, p; i < len; i++) {
             p = this._data[i];
-            ctx.globalAlpha = Math.max(p[2] / this._max, minOpacity === undefined ? 0.05 : minOpacity);
+            ctx.globalAlpha = Math.min(Math.max(p[2] / this._max, minOpacity === undefined ? 0.05 : minOpacity), 1);
             ctx.drawImage(this._circle, p[0] - this._r, p[1] - this._r);
         }
 
@@ -130,7 +130,7 @@ simpleheat.prototype = {
         }
     },
 
-    _createCanvas:function() {
+    _createCanvas: function () {
         if (typeof document !== 'undefined') {
             return document.createElement('canvas');
         } else {
