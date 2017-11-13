@@ -29,6 +29,12 @@ function get(id) {
     return document.getElementById(id);
 }
 
+if($(window).width() == 1920) {
+     get("floor").src = "floorplan-small.png"
+} else {
+     get("floor").src = "floorplan.png"
+}
+
 canvas = get('canvas');
 canvas.height = get('floor').height
 canvas.width = get('floor').width
