@@ -11,12 +11,15 @@
                  z-index: -1;}
         img { max-width: 100%; max-height: 100%;
               position: absolute; left: 0; top: 0;}
+        #status { position: absolute; right: 2%; bottom: 3%; text-align: left;
+                  color: darkorange;}
     </style>
 </head>
 <body>
     <img id="floor">
     <canvas id="canvas"></canvas>
     <canvas id="labels"></canvas>
+    <div id="status"></div>
 </div>
 <script src="jquery-3.1.1.min.js"></script>
 <script src="simpleheat.js"></script>
@@ -69,17 +72,23 @@ function draw() {
 function fill_data() {
     heat.clear();
     max = 0;
+    sum = 0;
     for(var i=0; i < ap_list.length; i++) {
         if(ap_list[i]["name"] in ap_loc) {
             loc = ap_loc[ap_list[i]["name"]];
             heat.add([loc[0]*get('floor').width, loc[1]*get('floor').height, ap_list[i]["clients"]]);
             max = Math.max(max, ap_list[i]["clients"]);
+            sum += ap_list[i]["clients"];
         } else {
             console.log('Unknown location for '+ap_list[i]["name"]);
         }
     }
     console.log('max:', max);
     heat.max(max);
+
+    get("status").innerHTML =
+        "Current maximum clients per AP: "+max+
+        "<br>Current total clients: "+sum;
     heat.radius(get('floor').width/32, get('floor').width/16); // radius, blur
     draw();
 
