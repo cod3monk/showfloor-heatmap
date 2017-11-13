@@ -21,6 +21,7 @@
 <script src="jquery-3.1.1.min.js"></script>
 <script src="simpleheat.js"></script>
 <script>
+$(document).ready(function() {
 
 window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
                                window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
@@ -59,7 +60,9 @@ var ap_list, ap_loc;
 
 function draw() {
     console.time('draw');
-    heat.draw();
+    try {
+        heat.draw();
+    } catch(e) {}
     console.timeEnd('draw');
 }
 
@@ -135,7 +138,7 @@ window.onresize = function() {
    fill_data();
    draw();
 };
-
+});
 </script>
 </body>
 </html>
