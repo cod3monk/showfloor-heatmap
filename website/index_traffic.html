@@ -17,7 +17,7 @@
 </head>
 <body>
 <div>
-    <img id="floor">
+    <img id="floor" src="floorplan-small.png">
     <canvas id="canvas"></canvas>
     <canvas id="labels"></canvas>
     <div id="status"></div>
@@ -66,7 +66,9 @@ function draw() {
     //console.time('draw');
     try {
         heat.draw();
-    } catch(e) {}
+    } catch(e) {
+        console.log(e);
+    }
     //console.timeEnd('draw');
 }
 
