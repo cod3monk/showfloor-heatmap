@@ -48,7 +48,12 @@ var urlParams = new URLSearchParams(window.location.search);
 // TODO resize with browser
 
 var heat = simpleheat('canvas');
-heat.gradient(heat.defaultGradient);
+heat.gradient({
+        0.2: 'blue',
+        0.3: 'cyan',
+        0.5: 'lime',
+        0.6: 'yellow',
+        0.8: 'red'});
 
 var ap_list, ap_loc;
 
