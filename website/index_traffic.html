@@ -1,0 +1,149 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>(Almost) Real-time Wifi-Traffic Heatmap</title>
+    <style>
+        body { height: 100%; width: 100%;
+               padding: 0; margin: 0;}
+        canvas { padding: 0; margin: 0;
+                 position: absolute; left: 0; top: 0;
+                 z-index: -1;}
+        img { max-width: 100%; max-height: 100%;
+              position: absolute; left: 0; top: 0;}
+    </style>
+</head>
+<body>
+    <img id="floor" src="floorplan.png">
+    <canvas id="canvas"></canvas>
+    <canvas id="labels"></canvas>
+</div>
+<script src="jquery-3.1.1.min.js"></script>
+<script src="simpleheat.js"></script>
+<script>
+
+window.requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame ||
+                               window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+
+function get(id) {
+    return document.getElementById(id);
+}
+
+canvas = get('canvas');
+canvas.height = get('floor').height
+canvas.width = get('floor').width
+lables = get('labels');
+labels.height = get('floor').height
+labels.width = get('floor').width
+var urlParams = new URLSearchParams(window.location.search);
+
+
+// TODO resize with browser
+
+var heat = simpleheat('canvas');
+heat.gradient(heat.defaultGradient);
+
+var ap_list, ap_loc, ap_traffic;
+
+function draw() {
+    //console.time('draw');
+    heat.draw();
+    //console.timeEnd('draw');
+}
+
+function fill_data() {
+    heat.clear();
+    var max = 0;
+    var sum = 0;
+    for(var i=0; i < ap_list.length; i++) {
+        if(ap_list[i]["name"] in ap_loc) {
+            loc = ap_loc[ap_list[i]["name"]];
+            if(ap_list[i]['ip'] in ap_traffic) {
+                heat.add([loc[0]*get('floor').width, loc[1]*get('floor').height, ap_traffic[ap_list[i]['ip']]]);
+                max = Math.max(max, ap_traffic[ap_list[i]['ip']]);
+                //sum += ap_traffic[ap_list[i]['ip']];
+            } else {
+                //console.log('No traffic for '+ap_list[i]["ip"]);
+            }
+        } else {
+            //console.log('Unknown location for '+ap_list[i]["name"]);
+        }
+    }
+    //console.log('max:', max, ' sum:', sum*8/1e6);
+    //console.log(heat)
+    heat.max(max);
+    heat.radius(get('floor').width/32, get('floor').width/16); // radius, blur
+
+    if(urlParams.has('show_aps')) {
+        console.log("now showing aps");
+        ctxt = labels.getContext("2d");
+        ctxt.clearRect(0, 0, labels.width, lables.height);
+        ctxt.textAlign = "left";
+        for(var i=0; i < ap_list.length; i++) {
+            if(ap_list[i]["name"] in ap_loc) {
+                loc = ap_loc[ap_list[i]["name"]];
+                x = loc[0]*get('floor').width,
+                y = loc[1]*get('floor').height
+                ctxt.font = "10px Arial";
+                ctxt.fillStyle = "red";
+                ctxt.beginPath();
+                ctxt.arc(x, y, 3, 0, 2*Math.PI);
+                ctxt.closePath();
+                ctxt.fill();
+                ctxt.ellipse(x, y, 10, 10, 0, 0, 0);
+                ctxt.fillStyle = "black";
+                ctxt.save();
+                ctxt.translate(x, y);
+                ctxt.rotate(-Math.PI/4);
+                var re = RegExp(".*-([A-F0-9]{4})-.*").exec(ap_list[i]["name"])
+                if(re != null) {
+                    ctxt.fillText(re[1], 0, 0);
+                } else {
+                    ctxt.fillText(ap_list[i]["name"], 0, 0);
+                }
+                ctxt.restore();
+            }
+        }
+    }
+
+    draw();
+}
+
+$.getJSON("ap_list.json", function( data ) {
+    ap_list = data;
+    if(ap_loc && ap_traffic) {
+        fill_data();
+    }
+});
+$.getJSON("ap_loc.json", function( data ) {
+    ap_loc = data;
+    if(ap_list && ap_traffic) {
+        fill_data();
+    }
+});
+
+function load_traffic() {
+$.getJSON("https://inmon.sc17.org/sflow-rt/activeflows/ALL/sc17-wifi/json?maxFlows=200&minValue=0&aggMode=max", function(data) {
+    ap_traffic = {}
+    for(var i=0; i < data.length; i++) {
+        ap_traffic[data[i]['key']] = data[i]['value'];
+    }
+    if(ap_list && ap_loc) {
+        fill_data();
+    }
+})
+};
+
+setInterval(load_traffic, 200);
+
+window.onresize = function() {
+   canvas.height = get('floor').height
+   canvas.width = get('floor').width
+   heat.resize();
+   fill_data();
+   draw();
+};
+
+</script>
+</body>
+</html>
