@@ -62,12 +62,14 @@ heat.gradient({
 var ap_list, ap_loc;
 
 function draw() {
-    console.time('draw');
+    //console.time('draw');
     try {
         heat.draw();
     } catch(e) {}
-    console.timeEnd('draw');
+    //console.timeEnd('draw');
 }
+
+var first_run=true;
 
 function fill_data() {
     heat.clear();
@@ -80,10 +82,12 @@ function fill_data() {
             max = Math.max(max, ap_list[i]["clients"]);
             sum += ap_list[i]["clients"];
         } else {
-            console.log('Unknown location for '+ap_list[i]["name"]);
+            if(first_run) {
+                console.log('Unknown location for '+ap_list[i]["name"]);
+            }
         }
     }
-    console.log('max:', max);
+    //console.log('max:', max);
     heat.max(max);
 
     get("status").innerHTML =
@@ -93,7 +97,6 @@ function fill_data() {
     draw();
 
     if(urlParams.has('show_aps')) {
-        console.log("now showing aps");
         ctxt = labels.getContext("2d");
         ctxt.clearRect(0, 0, labels.width, lables.height);
         ctxt.textAlign = "left";
@@ -123,6 +126,7 @@ function fill_data() {
             }
         }
     }
+    first_run = false;
 }
 
 $.getJSON("ap_loc.json", function( data ) {
@@ -134,7 +138,7 @@ $.getJSON("ap_loc.json", function( data ) {
 });
 
 function load() {
-    $.getJSON("ap_list.json", function( data ) {
+    $.getJSON("//measurement.sc17.org/showfloor-heatmap/cgi/get_ap_list.cgi", function( data ) {
         ap_list = data;
         if(ap_loc) {
             fill_data();
@@ -143,10 +147,11 @@ function load() {
     });
 };
 
+load();
 if(urlParams.has('interval')) {
     setInterval(load, urlParams.get('interval'));
 } else {
-    setInterval(load, 1000);
+    setInterval(load, 30000);
 }
 
 window.onresize = function() {
