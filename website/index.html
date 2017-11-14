@@ -115,9 +115,9 @@ function fill_data() {
                 ctxt.rotate(-Math.PI/4);
                 var re = RegExp(".*-([A-F0-9]{4})-.*").exec(ap_list[i]["name"])
                 if(re != null) {
-                    ctxt.fillText(re[1], 0, 0);
+                    ctxt.fillText(re[1]+"("+ap_list[i]["clients"]+")", 0, 0);
                 } else {
-                    ctxt.fillText(ap_list[i]["name"], 0, 0);
+                    ctxt.fillText(ap_list[i]["name"]+"("+ap_list[i]["clients"]+")", 0, 0);
                 }
                 ctxt.restore();
             }
@@ -125,13 +125,6 @@ function fill_data() {
     }
 }
 
-$.getJSON("ap_list.json", function( data ) {
-    ap_list = data;
-    if(ap_loc) {
-        fill_data();
-        draw();
-    }
-});
 $.getJSON("ap_loc.json", function( data ) {
     ap_loc = data;
     if(ap_list) {
@@ -139,6 +132,22 @@ $.getJSON("ap_loc.json", function( data ) {
         draw();
     }
 });
+
+function load() {
+    $.getJSON("ap_list.json", function( data ) {
+        ap_list = data;
+        if(ap_loc) {
+            fill_data();
+            draw();
+        }
+    });
+};
+
+if(urlParams.has('interval')) {
+    setInterval(load, urlParams.get('interval'));
+} else {
+    setInterval(load, 1000);
+}
 
 window.onresize = function() {
    canvas.height = get('floor').height
