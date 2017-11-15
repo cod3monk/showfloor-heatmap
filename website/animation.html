@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>(Almost) Real-time Wifi-Client Heatmap</title>
+    <title>Wifi-Client Heatmap History</title>
     <style>
         body { height: 100%; width: 100%;
                padding: 0; margin: 0;}
@@ -12,7 +12,7 @@
         img { max-width: 100%; max-height: 100%;
               position: absolute; left: 0; top: 0;}
         #status { position: absolute; right: 2%; bottom: 3%; text-align: left;
-                  color: darkorange;}
+                  color: darkorange; font-size: 200%;}
     </style>
 </head>
 <body>
@@ -49,7 +49,11 @@ labels.width = get('floor').width
 var urlParams = new URLSearchParams(window.location.search);
 
 
-// TODO resize with browser
+Number.prototype.pad = function(size) {
+    var s = String(this);
+    while (s.length < (size || 2)) {s = "0" + s;}
+    return s;
+}
 
 var heat = simpleheat('canvas');
 heat.gradient({
@@ -59,7 +63,7 @@ heat.gradient({
         0.6: 'yellow',
         0.8: 'red'});
 
-var ap_list, ap_loc;
+var ap_list, ap_loc, ap_list_list;
 
 function draw() {
     //console.time('draw');
@@ -69,7 +73,17 @@ function draw() {
     //console.timeEnd('draw');
 }
 
+var weekday = new Array(7);
+weekday[0] =  "Sunday";
+weekday[1] = "Monday";
+weekday[2] = "Tuesday";
+weekday[3] = "Wednesday";
+weekday[4] = "Thursday";
+weekday[5] = "Friday";
+weekday[6] = "Saturday";
+
 var first_run=true;
+var date_re = RegExp("archive/([0-9]{4})-([0-9]{2})-([0-9]{2})_([0-9]{2}):([0-9]{2}):[0-9]{2}.json");
 
 function fill_data() {
     heat.clear();
@@ -80,19 +94,20 @@ function fill_data() {
             loc = ap_loc[ap_list[i]["name"]];
             heat.add([loc[0]*get('floor').width, loc[1]*get('floor').height, ap_list[i]["clients"]]);
             max = Math.max(max, ap_list[i]["clients"]);
-            sum += ap_list[i]["clients"];
         } else {
             if(first_run) {
                 console.log('Unknown location for '+ap_list[i]["name"]);
             }
         }
+        sum += ap_list[i]["clients"];
     }
     //console.log('max:', max);
     heat.max(max);
 
+    date_m = date_re.exec(ap_list_list[frame_idx]);
+    d = new Date(date_m[1], date_m[2]-1, date_m[3], date_m[4], date_m[5]);
     get("status").innerHTML =
-        "Current maximum clients per AP: "+max+
-        "<br>Current total clients: "+sum;
+        "Total clients: <b>"+sum+"</b><br>"+weekday[d.getDay()]+" "+d.getHours().pad(2)+":"+d.getMinutes().pad(2);
     heat.radius(get('floor').width/32, get('floor').width/16); // radius, blur
 
     if(urlParams.has('show_aps')) {
@@ -131,25 +146,32 @@ function fill_data() {
 
 $.getJSON("ap_loc.json", function( data ) {
     ap_loc = data;
-    if(ap_list) {
-        fill_data();
-    }
 });
 
+$.getJSON("archive/2017.json", function( data ) {
+    ap_list_list = data;
+});
+
+var frame_idx = 0;
+
 function load() {
-    $.getJSON("//measurement.sc17.org/showfloor-heatmap/cgi/get_ap_list.cgi", function( data ) {
-        ap_list = data;
-        if(ap_loc) {
-            fill_data();
+    if(ap_loc && ap_list_list) {
+        if(frame_idx > ap_list_list.length) {
+            frame_idx = 0;
         }
-    });
+        $.getJSON(ap_list_list[frame_idx], function( data ) {
+            ap_list = data;
+            fill_data();
+        });
+        frame_idx += 1;
+    }
 };
 
 load();
 if(urlParams.has('interval')) {
     setInterval(load, urlParams.get('interval'));
 } else {
-    setInterval(load, 30000);
+    setInterval(load, 200);
 }
 
 window.onresize = function() {
