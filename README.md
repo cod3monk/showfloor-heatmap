@@ -3,7 +3,9 @@ SC17 showfloor heatmap
 
 Reads data from a Cisco Prime and turns it into a heatmap of clients associations. Needs manual input for AP locations. It also supports live bandwidth heatmaps, which update in realtime with [sFlow-RT](http://sflow-rt.com/).
 
-## Example Images
+## Example
+
+See the following youtube video: https://www.youtube.com/watch?v=yYeZzxcRPpk
 
 
 ## How to run
