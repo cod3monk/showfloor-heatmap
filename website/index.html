@@ -137,7 +137,7 @@ $.getJSON("ap_loc.json", function( data ) {
 });
 
 function load() {
-    $.getJSON("//measurement.sc17.org/showfloor-heatmap/cgi/get_ap_list.cgi", function( data ) {
+    $.getJSON("ap_list.json", function( data ) {
         ap_list = data;
         if(ap_loc) {
             fill_data();
