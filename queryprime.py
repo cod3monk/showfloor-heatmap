@@ -34,7 +34,7 @@ def main():
                           config)['json_response']['queryResponse']['entity']
     dump_data = [{"mac": ap['accessPointsDTO']['macAddress'],
                   "ip": ap['accessPointsDTO']['ipAddress'],
-                  "name": ap['accessPointsDTO']['name'],
+                  "name": ap['accessPointsDTO'].get('name', ''),
                   "location": ap['accessPointsDTO']['location'],
                   "clients": ap['accessPointsDTO']['clientCount'],
                   "clients2.4": ap['accessPointsDTO']['clientCount_2_4GHz'],
