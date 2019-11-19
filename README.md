@@ -23,6 +23,8 @@ See the following youtube video: https://www.youtube.com/watch?v=yYeZzxcRPpk
 6. Point browser to `website/index.html` (e.g., with `./runserver.py` in `website`)
 7. Add `?show_aps` to URL to also show AP placement on showfloor.
 
+If you need to add any ap locations later. `imagesviewer.py` supports searching for individual ap names (Command-F), but the resulting file needs to be merged manually.
+
 ## Live sFlow-RT version
 
 1. Create an sFlow-RT app, as described [here](http://sflow-rt.com/writing_applications.php) with the following script:

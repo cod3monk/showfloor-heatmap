@@ -147,7 +147,7 @@ $.getJSON("ap_loc.json", function( data ) {
 });
 
 function load_traffic() {
-$.getJSON("https://inmon.sc17.org/sflow-rt/activeflows/ALL/sc17-wifi/json?maxFlows=200&minValue=0&aggMode=max", function(data) {
+$.getJSON("https://inmon.scconf.org/sflow-rt/activeflows/ALL/wifi/json?maxFlows=200&minValue=0&aggMode=max", function(data) {
     ap_traffic = {}
     for(var i=0; i < data.length; i++) {
         ap_traffic[data[i]['key']] = data[i]['value'];
