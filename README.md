@@ -22,6 +22,9 @@ See the following youtube video: https://www.youtube.com/watch?v=yYeZzxcRPpk
    5. Save AP Locations to `website/ap_loc.json`
 6. Point browser to `website/index.html` (e.g., with `./runserver.py` in `website`)
 7. Add `?show_aps` to URL to also show AP placement on showfloor.
+8. Add the following cronjob to update website every minute and record history (for use with animation.html):
+
+   ```* * * * * cd /my/path/to/showfloor-heatmap/ && ./queryprime.py > website/ap_list.json && cp website/ap_list.json website/archive/`date +%Y-%m-%d_%H:%M:%S`.json```
 
 If you need to add any ap locations later. `imagesviewer.py` supports searching for individual ap names (Command-F), but the resulting file needs to be merged manually.
 
